@@ -1,0 +1,18 @@
+[
+  {"key": "APP-101", "summary": "Rewrite billing engine on new ledger service", "size": "XL", "confidence": 0.8,
+   "time_criticality": 0, "risk_reduction": 1, "metrics": [],
+   "notes": "Large cross-team refactor; description names no user or metric outcome."},
+  {"key": "APP-102", "summary": "Add 'skip for now' to onboarding step 3", "size": "S", "confidence": 0.8,
+   "time_criticality": 0, "risk_reduction": 0,
+   "metrics": [{"id": "activation_rate", "effect": "improves", "magnitude": 2, "confidence": 0.7,
+                "evidence": "\"43% of users abandon at step 3\""}]},
+  {"key": "APP-103", "summary": "Inline help for export errors", "size": "M", "confidence": 0.6,
+   "time_criticality": 1, "risk_reduction": 0,
+   "metrics": [{"id": "support_volume", "effect": "improves", "magnitude": 1, "confidence": 0.6,
+                "evidence": "\"export errors are our #2 contact reason\""}]},
+  {"key": "APP-104", "summary": "Add realtime presence indicators", "size": "L", "confidence": 0.4,
+   "time_criticality": 0, "risk_reduction": 0,
+   "metrics": [{"id": "activation_rate", "effect": "improves", "magnitude": 1, "confidence": 0.3,
+                "evidence": "\"might help people feel less alone\""}],
+   "guardrail_risks": [{"id": "reliability_latency", "severity": 1, "confidence": 0.5}]}
+]

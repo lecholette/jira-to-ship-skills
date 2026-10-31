@@ -1,0 +1,12 @@
+[
+ {"q": "how does the delta command decide which modified symbols count as untested? I need to understand it properly before I change the gap rules", "expect": "spec-research"},
+ {"q": "write a phased plan for adding JavaScript and TypeScript support to the indexer, with rollback, before anyone touches code", "expect": "spec-plan"},
+ {"q": "before I change GraphStore.upstream's signature, what calls it and what would break?", "expect": "codegraph"},
+ {"q": "compare my branch to main: did I add import cycles or change code without tests?", "expect": "codegraph"},
+ {"q": "write the PR description for my branch, the diff is ready for review", "expect": "pr-describe"},
+ {"q": "step back and tell me where this project really stands: read the README, HELP.md and the tests, and tell me what's solid and what's shaky", "expect": "zoom-out"},
+ {"q": "the map command sometimes prints a token count larger than the --max-tokens I passed. pagerank computes it right but the CLI output is wrong. trace it back to where it goes wrong, don't just clamp it in cli.py", "expect": "root-cause-trace"},
+ {"q": "here's ticket CG-12 pasted from jira: 'slice is slow on big repos'. that's the whole ticket. get it ready for someone to pick up", "expect": "jira-ticket-enrich"},
+ {"q": "what does --max-tokens do on the map command, in one sentence?", "expect": "none"},
+ {"q": "what license is this repo under?", "expect": "none"}
+]

@@ -1,0 +1,54 @@
+{
+  "skill": "atdd",
+  "scenarios": [
+    {
+      "name": "enrichment-handoff",
+      "input": "Run ATDD on this jira-ticket-enrich JSON for a feature with acceptance_criteria: [\"Given a finance admin When they export March invoices Then a CSV with all March invoices downloads\"].",
+      "expect": [
+        "initializes the ledger with --from and creates AC-1",
+        "flags 'all March invoices' edge cases (zero invoices, timezone boundary) as proposed criteria or questions",
+        "writes the test before any implementation",
+        "runs the test through the ledger and observes RED before implementing"
+      ]
+    },
+    {
+      "name": "vague-requirement",
+      "input": "Ticket: 'Checkout should handle errors gracefully.' Do ATDD.",
+      "expect": [
+        "identifies that no observable Then exists",
+        "produces numbered questions (which errors, what message or status, what state afterwards)",
+        "does not write tests with guessed behavior",
+        "stops for answers before step 5"
+      ]
+    },
+    {
+      "name": "passes-immediately",
+      "input": "The new acceptance test for AC-2 passes on first run, before any implementation.",
+      "expect": [
+        "stops instead of proceeding to implementation",
+        "reports either that the behavior already exists or the test does not exercise the change",
+        "does not record a manual RED"
+      ]
+    },
+    {
+      "name": "bug-reproduction-first",
+      "input": "Bug ticket: discount applied twice when the coupon is re-entered. Use ATDD to fix it.",
+      "expect": [
+        "first AC is the reproduction in Given/When/Then with the correct behavior as Then",
+        "test is RED on unfixed code for an assertion reason, not an error",
+        "fix is minimal and GREEN is recorded via the ledger run command",
+        "ledger check passes before declaring done"
+      ]
+    },
+    {
+      "name": "framework-detection",
+      "input": "Repo has pom.xml and src/test/java. Write acceptance tests for a new REST endpoint.",
+      "expect": [
+        "detects JUnit from the repo",
+        "copies an existing test's conventions",
+        "uses a single-test selector command with Maven",
+        "confirms the test actually ran from the output tail"
+      ]
+    }
+  ]
+}

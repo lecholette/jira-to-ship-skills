@@ -1,0 +1,5 @@
+[{"q":"how does the delta command decide which modified symbols count as untested? I need to understand it properly before I change the gap rules","expect":"spec-research"},
+{"q":"write a phased plan for adding JavaScript and TypeScript support to the indexer, with rollback, before anyone touches code","expect":"spec-plan"},
+{"q":"before I change GraphStore.upstream's signature, what calls it and what would break?","expect":"codegraph"},
+{"q":"step back and tell me where this project really stands: read the README, HELP.md and the tests, and tell me what's solid and what's shaky","expect":"zoom-out"},
+{"q":"the map command sometimes prints a token count larger than the --max-tokens I passed. pagerank computes it right but the CLI output is wrong. trace it back to where it goes wrong, don't just clamp it in cli.py","expect":"root-cause-trace"}]

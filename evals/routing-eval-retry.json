@@ -1,0 +1,54 @@
+[
+ {
+  "q": "we've got like 40 tickets in the PAY project backlog that nobody's groomed. go through the open ones, flag what's missing and suggest priorities. don't change anything in jira yet",
+  "expect": "jira-ticket-enrich"
+ },
+ {
+  "q": "PAY-812 just says 'refund button broken for some EU customers' and nothing else. figure out what we need from the reporter before anyone picks it up",
+  "expect": "jira-ticket-enrich"
+ },
+ {
+  "q": "PAY-790 keeps reopening, duplicate charges on retry. do a proper RCA with hypotheses and what would confirm each, I need it for the incident review thursday",
+  "expect": "jira-rca"
+ },
+ {
+  "q": "the invoice total on the customer PDF shows 0.00 but the DB row has the right amount. walk it back and find where it goes wrong, I don't want another null check slapped in the template",
+  "expect": "root-cause-trace"
+ },
+ {
+  "q": "how does the webhook retry logic in services/billing actually work? I need to understand it before planning the idempotency change",
+  "expect": "spec-research"
+ },
+ {
+  "q": "write a phased plan for moving session storage from redis to postgres, with rollback, before anyone touches code",
+  "expect": "spec-plan"
+ },
+ {
+  "q": "the plan at docs/specs/PAY-812/plan.md is approved, go ahead and start phase 1",
+  "expect": "spec-implement"
+ },
+ {
+  "q": "check whether the PAY-812 implementation actually matches the plan, I think phase 3 got skipped",
+  "expect": "spec-validate"
+ },
+ {
+  "q": "is the release branch good to go out tonight? I need a go/no-go",
+  "expect": "release-readiness"
+ },
+ {
+  "q": "fill in the PR template for my branch, the diff is ready for review",
+  "expect": "pr-describe"
+ },
+ {
+  "q": "before I touch billing/ledger.py, what calls apply_credit and what breaks if I change its signature? it's a python repo",
+  "expect": "codegraph"
+ },
+ {
+  "q": "compare my branch to main: did I add import cycles or change code without tests? it's a django app",
+  "expect": "codegraph"
+ },
+ {
+  "q": "step back and tell me what's really going on with this project, reading the 30 design docs and postmortems in docs/",
+  "expect": "zoom-out"
+ }
+]

@@ -1,0 +1,11 @@
+{
+  "metrics": [
+    {"id": "activation_rate", "name": "New-user activation rate", "weight": 5, "direction": "up", "unit": "%", "baseline": 38, "target": 50, "how_measured": "Product analytics funnel: activated_user event / signup_completed event"},
+    {"id": "retention_30d", "name": "30-day retention", "weight": 4, "direction": "up", "unit": "%", "baseline": 60, "target": 68, "how_measured": "Retention cohort report, weekly signup cohorts"},
+    {"id": "expansion_revenue", "name": "Net revenue expansion", "weight": 4, "direction": "up", "unit": "%", "baseline": 102, "target": 110, "how_measured": "Billing report: net revenue retention, monthly"},
+    {"id": "support_volume", "name": "Support tickets per 1k active users", "weight": 2, "direction": "down", "unit": "tickets", "baseline": 42, "target": 30, "how_measured": "Helpdesk weekly export grouped by contact reason"}
+  ],
+  "guardrails": [
+    {"id": "reliability_latency", "limit": "Availability >= 99.9% and API p95 < 400 ms", "weight": 3}
+  ]
+}

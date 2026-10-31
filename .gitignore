@@ -1,0 +1,14 @@
+# Source material: company/personal-specific, kept local only
+originals/
+.DS_Store
+__pycache__/
+*.pyc
+*.sqlite
+jira-enrichment/
+.claude/
+evals/routing-results*.json
+evals/workspace/**/repo/
+evals/workspace/
+evals/review-*.html
+evals/routing-run*.log
+evals/routing-smoke.json
