@@ -55,7 +55,7 @@ Anchor forms:
 | `symbol_id` | Exact id from earlier output |
 | `package.module:` | Whole module source |
 
-Output sections: required (full anchor implementations, rendering targets first and summarizing oversized related classes), upstream callers (signatures), then downstream callees (signatures, or bodies with the flag), added in rank order while the budget allows. Default budget 8000. Pass `--outline` to omit implementation bodies and keep only structure.
+Output sections: required (`types_and_schemas` auto-skeletonizing oversized classes, and `target_implementations` rendered last in `--format xml` for recency), production `upstream_callers` (signatures with 5-line call-site snippets; use `--outline` or `impact` for test callers), and `downstream_callees`, added in rank order under budget (default 8000).
 
 ## impact
 

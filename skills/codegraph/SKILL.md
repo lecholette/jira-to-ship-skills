@@ -39,7 +39,7 @@ DB="$(mktemp -d)/graph.sqlite"
 - **Blast radius & transitive callers:** `impact` to trace bounded transitive callers across call edges before refactoring or deprecating.
 - **"Where does this value come from / go to":** `flow` on one function with `--variable`.
 - **Reviewing a branch or PR:** `delta` between the base and head revisions.
-- **Skip it** for small repos (a few files), single-file edits, or localized changes (< 2 files). Reading the file directly is cheaper.
+- **Skip it** for small repos, single-file edits, or localized changes ($\le 2$ files). Reading the file directly is cheaper.
 
 ## Workflow
 
@@ -58,10 +58,9 @@ Copy this checklist:
 2. **Map.** `codegraph-slicer map --db "$DB" --seed <module.or.path> --max-tokens 2000 --format markdown`. Ranked file skeletons with bodies elided. Use `--outline` for compact entity signatures and typed resolved neighbor edges (`CALLS`, `IMPORTS`, `USES_TYPE`, `INHERITS`, `DEFINES`).
 3. **Slice (batch anchors & structure).**
    - **Do not read entire files with Read/Grep.** Pass **all** target anchors in a **single** `slice` command (`slice --db "$DB" pkg.mod:a pkg.mod:b --format xml`) rather than looping `slice` in bash or falling back to raw file reading. `slice` deduplicates shared types and callers across anchors.
-   - Slices render the primary target first and automatically summarize oversized related classes. If a slice refuses for size, rerun once with `--max-tokens` at the N printed in the error.
-   - **Format selection:** Prefer `--format xml` for LLM agents (clean `<code_slice>` blocks with no escaping or fence collisions); use `--format markdown` for human reading or `--format json` for tooling.
-   - Use `slice --outline` when you only need structural signatures, callers, callees, and types without implementation bodies.
-   - Once you start editing files, pass `--snapshot` when querying unchanged symbols from the baseline `$DB` so `slice` and `map` do not fail with `StaleSnapshotError` (re-sync for symbols you edited).
+   - **Format selection:** Prefer `--format xml` for LLM agents (`<target_implementations>` placed last for recency attention, oversized classes auto-skeletonized, and production `upstream_callers` annotated with `# L<line>:` call-site snippets); use `--format markdown` for humans or `--format json` for tooling.
+   - Use `slice --outline` when you only need structural signatures and edges without bodies.
+   - Once editing begins, pass `--snapshot` when querying unchanged symbols from `$DB` to avoid `StaleSnapshotError` (re-sync for edited symbols).
    - Add `--include-callee-bodies` only when you need callee logic.
 4. **Impact.** `codegraph-slicer impact <module:qualname> --db "$DB" --max-depth 3 --max-nodes 200 --format markdown`. Bounded transitive callers across resolved call edges. Use for blast radius and understanding who depends on a symbol before refactoring or deprecating.
 5. **Flow.** `codegraph-slicer flow <module:function> --db "$DB" --variable <name> --line <n>`. Backward by default (what feeds this value); `--direction forward` for what it affects; `--data-only` drops control dependencies. Models `try`/`except`/`finally`, `with`, `async with`, and comprehensions conservatively. Refuses `await`, `yield`, lambdas, nested definitions, and imports with a source location (use `slice` for those).
@@ -73,7 +72,7 @@ Anchor forms, flags, budgets, and error handling are in `references/commands.md`
 
 Use codegraph to keep changes test-first and test-backed. Each use is a signal for a human or gate, not proof.
 
-- **Before a change:** `slice` the anchor and read the upstream callers for test symbols (`TESTS` edges, `tests.*` modules). These are the existing unit or acceptance coverage to run first and to extend with a failing test before editing.
+- **Before a change:** run `impact` or `slice --outline` on the anchor to list upstream test callers (`tests.*` modules; regular `slice` focuses `upstream_callers` on production callers). Run existing coverage first and extend it with a failing test before editing.
 - **After a change:** sync base and head with `--revision`, run `delta`, and pipe it to `scripts/delta_gate.py`. This script, not raw `untested_modified_symbols`, is the gate that ship and validation skills (fix-and-ship, release-readiness, spec-validate) run. Reason: a test module symbol (id ending in `:`) counts as "updated" whenever any test in that file changes, and it imports the code under test, so raw `untested_modified_symbols` can be empty while a changed function has no test (verified: adding one test made every symbol in the module look covered). The gate requires each changed non-module symbol to have at least one updated or selected real test symbol, prints a table of symbol and evidence or `GAP`, prints module-level entries as `WARN`, fails when a test that existed on the base side was removed or changed (retiring an existing test is a requirement decision: pass `--allow-test-change <symbol>` only after the user approves, and note it in the PR), and exits 1 on any gap, existing-test change, `boundary_violations`, or `new_cycles` (0 otherwise, 2 on bad input). It runs on system `python3` (3.9+):
 
   ```bash
