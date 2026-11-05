@@ -159,5 +159,5 @@ Together: the ledger answers "did the acceptance tests mean something, and do th
 - Codegraph reachability is import-level. A test that imports a module can appear to reach a function it never calls; symbol-id selection narrows this but doesn't remove it. A `GAP` is a real signal; an `ok` is weaker evidence than a `GAP`.
 - Selected tests are never executed by `delta`. Run them through the ledger.
 - Entrypoint discovery (`__main__`, paths containing `cli`, `scripts`, `mcp`, symbols named `main`) is heuristic; framework-decorated handlers aren't found.
-- Token budgets in `map`, `slice`, and `flow` are `chars / 4` estimates. `flow` refuses functions using `try`, `with`, `async`, comprehensions, lambdas, or nested definitions and tells you where.
+- Token budgets in `map`, `slice`, and `flow` are `chars / 4` estimates. `flow` models `try`/`except`/`finally`, `with`, `async with`, and comprehensions conservatively, and refuses `await`, `yield`, lambdas, nested definitions, or imports with a source location.
 - Non-Python repos get the ledger only. That's still red-before-green per AC with digests and a re-executed release gate, which is the part that catches most of the problems; the missing piece is the untested-change check, and the reviewer has to do it by reading the diff.

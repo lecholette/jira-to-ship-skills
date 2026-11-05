@@ -43,7 +43,7 @@ Ask once, only for what is missing:
 
 **5. Prior art.** Check `docs/`, ADRs, READMEs, and `git log -S` / `git log --follow` for history on the touched files. Search the web only if the user asks, and include links.
 
-**5b. AC mapping.** For each `AC-n`, list the code areas that must change, the existing tests that already cover nearby behavior (and whether they would catch a regression), and any AC whose Then cannot be observed with the current code. Unobservable or ambiguous ACs go to Open Questions, not guesses. If the `codegraph` skill is available, use `map --outline` for structural orientation, `slice` to gather context for the symbols involved, and its TESTS edges to find existing coverage; otherwise search test directories by symbol name.
+**5b. AC mapping.** For each `AC-n`, list the code areas that must change, the existing tests that already cover nearby behavior (and whether they would catch a regression), and any AC whose Then cannot be observed with the current code. Unobservable or ambiguous ACs go to Open Questions, not guesses. If the `codegraph` skill is available, use `map --outline` for structural orientation, `slice --format xml` for production context, and `impact` (or `slice --outline`) to find existing test callers; otherwise search test directories by symbol name.
 
 **6. Write.** Gather metadata: `date -Iseconds`, `git rev-parse --short HEAD`, `git branch --show-current`, repo name. If not a git repo, omit those fields. Save to `<output dir>/YYYY-MM-DD-<topic-slug>.md` using `references/template.md`.
 
