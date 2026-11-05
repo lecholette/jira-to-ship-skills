@@ -14,7 +14,7 @@ Input (from the caller): ticket key, one-paragraph symptom, component or area, r
 ## Method
 
 1. Extract concrete handles from the symptom: error strings, endpoint paths, UI labels, feature names, config keys.
-2. Narrow before reading. Python repo with `codegraph-slicer` installed (see the `codegraph` skill): `sync`, then `map --seed <component module>` for ranked file skeletons, then `slice <module:symbol>` on the best candidates for callers, callees, and existing tests. If the output carries an `omitted` count, rerun with a larger `--max-tokens` before ruling a file out. Otherwise narrow by directory (component name, route, module), then grep the handles inside those directories. Avoid a repo-wide grep.
+2. Narrow before reading. Python repo with `codegraph-slicer` installed (see the `codegraph` skill): `sync`, then `map --seed <component module>` (or `map --outline`) for ranked skeletons and entity signatures, then `slice <module:symbol>` on the best candidates for callers, callees, and existing tests, and `impact <module:symbol>` to trace transitive callers. If the output carries an `omitted` count, rerun with a larger `--max-tokens` before ruling a file out. Otherwise narrow by directory (component name, route, module), then grep the handles inside those directories. Avoid a repo-wide grep.
 3. Read only the best 3-5 candidate files, and only the relevant ranges.
 4. Form a hypothesis. Check for a test that already covers the path.
 5. If the caller passes acceptance criteria ids (`atdd` ledger), map each AC to candidate code areas and existing tests.

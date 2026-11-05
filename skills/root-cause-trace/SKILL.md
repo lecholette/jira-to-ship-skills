@@ -35,7 +35,7 @@ One sentence: what is observed, where, and what was expected. Reproduce with the
 
 ### 2. Map the path
 
-List each hop the value passes through, from where it is created to where it is shown. Typical hops: input or external source, calculation or domain model, serialization or storage, API boundary, rendering. Read the code for each hop; do not assume.
+List each hop the value passes through, from where it is created to where it is shown. Typical hops: input or external source, calculation or domain model, serialization or storage, API boundary, rendering. Read the code for each hop; do not assume. On Python repos with `codegraph` available, use `codegraph-slicer flow <symbol> --variable <name> --line <n>` to mechanically trace backward data dependencies, and `codegraph-slicer impact <symbol>` to inspect upstream callers.
 
 ### 3. The whys
 

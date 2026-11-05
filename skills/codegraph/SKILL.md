@@ -34,7 +34,8 @@ DB="$(mktemp -d)/graph.sqlite"
 ## When to use it
 
 - **Before reading many files:** run `map` with a seed and a small budget, then `slice` the one or two symbols that matter.
-- **Before changing a function:** `slice` it to see callers (who breaks) and callees and types (what it relies on).
+- **Before changing a function:** `slice` it to see direct callers, callees, and types.
+- **Blast radius & transitive callers:** `impact` to trace bounded transitive callers across call edges before refactoring or deprecating.
 - **"Where does this value come from / go to":** `flow` on one function with `--variable`.
 - **Reviewing a branch or PR:** `delta` between the base and head revisions.
 - **Skip it** for small repos (a few files), single-file edits, or non-Python code. Reading the file is cheaper.
@@ -47,15 +48,22 @@ Copy this checklist:
 - [ ] 1. sync the repo into a database
 - [ ] 2. map to orient (seed on the area you care about)
 - [ ] 3. slice the symbols you need to understand or change
-- [ ] 4. flow, only for value-origin or mutation questions inside one function
-- [ ] 5. delta (sync base and head into two databases) to size a change
+- [ ] 4. impact for bounded transitive callers or blast radius
+- [ ] 5. flow, only for value-origin or mutation questions inside one function
+- [ ] 6. delta (sync base and head into two databases) to size a change
 ```
 
 1. **Sync.** `codegraph-slicer sync <repo-root> --db "$DB"`. Output reports parsed/cached files, symbol and edge counts, and detected packages. Re-sync is incremental. One database holds one snapshot.
-2. **Map.** `codegraph-slicer map --db "$DB" --seed <module.or.path> --max-tokens 1500 --format markdown`. Ranked file skeletons with bodies elided. Use it to pick anchors.
-3. **Slice.** `codegraph-slicer slice --db "$DB" <module:qualname> --max-tokens 4000 --format markdown`. Returns full source of the anchor, its types, then caller and callee signatures by relevance. Add `--include-callee-bodies` only when you need callee logic. If the anchor does not fit the budget the command errors; raise `--max-tokens`.
-4. **Flow.** `codegraph-slicer flow <module:function> --db "$DB" --variable <name> --line <n>`. Backward by default (what feeds this value); `--direction forward` for what it affects; `--data-only` drops control dependencies. Functions using `try`, `with`, `async`, comprehensions, or lambdas are refused with a location; fall back to reading the function.
-5. **Delta.** Sync `--revision <base>` and `--revision HEAD` into separate databases, then `codegraph-slicer delta --base-db B --head-db H --full --max-tokens 200000 [--forbid-import SRC TARGET] [--selected-test PATH]`. Reports added or removed edges, new import or call cycles, forbidden import pairs, complexity and fan-out drift, affected entrypoints, and changed code with no static test link.
+2. **Map.** `codegraph-slicer map --db "$DB" --seed <module.or.path> --max-tokens 2000 --format markdown`. Ranked file skeletons with bodies elided. Use `--outline` for compact entity signatures and typed resolved neighbor edges (`CALLS`, `IMPORTS`, `USES_TYPE`, `INHERITS`, `DEFINES`).
+3. **Slice (batch anchors & structure).**
+   - Pass **all** target anchors in a **single** `slice` command (`slice --db "$DB" pkg.mod:a pkg.mod:b`) rather than looping `slice` in bash; `slice` deduplicates shared types and callers across anchors.
+   - Slices render the primary target first and automatically summarize oversized related classes. If a slice refuses for size, rerun once with `--max-tokens` at the N printed in the error.
+   - Use `slice --outline` when you only need structural signatures, callers, callees, and types without implementation bodies.
+   - Once you start editing files, pass `--snapshot` when querying unchanged symbols from the baseline `$DB` so `slice` and `map` do not fail with `StaleSnapshotError` (re-sync for symbols you edited).
+   - Add `--include-callee-bodies` only when you need callee logic.
+4. **Impact.** `codegraph-slicer impact <module:qualname> --db "$DB" --max-depth 3 --max-nodes 200 --format markdown`. Bounded transitive callers across resolved call edges. Use for blast radius and understanding who depends on a symbol before refactoring or deprecating.
+5. **Flow.** `codegraph-slicer flow <module:function> --db "$DB" --variable <name> --line <n>`. Backward by default (what feeds this value); `--direction forward` for what it affects; `--data-only` drops control dependencies. Models `try`/`except`/`finally`, `with`, `async with`, and comprehensions conservatively. Refuses `await`, `yield`, lambdas, nested definitions, and imports with a source location (use `slice` for those).
+6. **Delta.** Sync `--revision <base>` and `--revision HEAD` into separate databases, then `codegraph-slicer delta --base-db B --head-db H --full --max-tokens 200000 [--forbid-import SRC TARGET] [--selected-test PATH]`. Reports added or removed edges, new import or call cycles, forbidden import pairs, complexity and fan-out drift, affected entrypoints, and changed code with no static test link.
 
 Anchor forms, flags, budgets, and error handling are in `references/commands.md`.
 
@@ -85,6 +93,8 @@ Limits to state when reporting: static analysis only; selecting a test does not 
 
 - `module:qualname` depends on the sync root. Syncing a package directory itself drops the package prefix from module names; sync the project root.
 - Exit code 2 with a message on stderr means bad anchor, stale source, unsupported syntax, or a budget too small. It never returns an empty result for an unknown anchor.
+- Errors print `hint:` lines (nearest anchors, snapshot commit). Use them before retrying.
 - `database is locked` means another sync is writing; retry once.
 - Token budgets are estimates (`chars / 4`), not tokenizer counts. Leave headroom.
+- If a command refuses for size, rerun once with `--max-tokens` set to the N printed in the error hint.
 - **A short result may be a truncated one.** When `map` or `slice` drops items to fit `--max-tokens`, newer versions say so: an `omitted` object with counts per kind (`{"files": 24}` for map, dropped section kinds for slice) plus `retrieve_details`. If `omitted` is present, rerun with a larger `--max-tokens` before concluding something has no callers or isn't in the map. Older versions dropped optional items silently, so on those treat a result that fills the budget as possibly truncated. `tokens` now measures the whole printed output, not just the items.

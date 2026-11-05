@@ -13,7 +13,7 @@ You need Claude Code, `git`, `gh`, and `uv` (or any Python 3.12+ for codegraph-s
 Symlink the skills into your personal skills directory, or into a repo's `.claude/skills/` if you want them versioned with that project:
 
 ```bash
-git clone <this repo> ~/interface
+git clone https://github.com/lecholette/jira-to-ship-skills.git ~/interface
 mkdir -p ~/.claude/skills
 for d in ~/interface/skills/*/; do ln -sfn "$d" ~/.claude/skills/$(basename "$d"); done
 ls ~/.claude/skills

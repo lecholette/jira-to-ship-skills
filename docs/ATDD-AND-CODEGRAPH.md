@@ -102,7 +102,7 @@ The ledger proves that the tests you chose ran red and then green on the same te
 
 `codegraph-slicer sync` parses the repo with `ast` into a SQLite snapshot: functions, classes, methods, and the import, call, inheritance, type-use, and `TESTS` edges between them. `delta` compares two snapshots (base and head revisions) and reports, among other things, `test_coverage`: for every changed symbol, which test symbols can reach it and which of those were themselves updated in the diff or passed in with `--selected-test`.
 
-`scripts/delta_gate.py` reads that JSON from stdin and applies one rule: every changed non-module symbol needs at least one piece of evidence that is a real test function symbol, not a test module. Module-level ids (ending in `:`) print as `WARN` and never fail. It exits 1 on any `GAP`, any `boundary_violations` entry, or any `new_cycles` entry; 0 otherwise; 2 if the input isn't delta JSON.
+`scripts/delta_gate.py` reads that JSON from stdin and applies two rules: (1) every changed non-module symbol needs at least one piece of evidence that is a real test function symbol, not a test module, and (2) any pre-existing test function that was removed or modified fails the gate unless explicitly approved with `--allow-test-change SYMBOL` (because retiring or rewriting an existing test is a requirement decision for a person). Module-level ids (ending in `:`) print as `WARN` and never fail. It exits 1 on any `GAP`, any unapproved `existing-test change`, any `boundary_violations` entry, or any `new_cycles` entry; 0 otherwise; 2 if the input isn't unbudgeted `--full` delta JSON.
 
 ### Why the gate script exists instead of the raw field
 
@@ -110,7 +110,7 @@ The ledger proves that the tests you chose ran red and then green on the same te
 
 ```
 app.discounts:describe        GAP   no updated or selected test symbol (module-only: tests.test_discounts:)
-RESULT: FAIL (1 gap(s), 0 violation(s), 0 cycle(s))
+RESULT: FAIL (1 gap(s), 0 existing-test change(s), 0 violation(s), 0 cycle(s))
 ```
 
 The parenthetical shows the masking: the only evidence was the module `tests.test_discounts:`, which the gate discards.

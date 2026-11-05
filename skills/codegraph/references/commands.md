@@ -8,6 +8,7 @@ Install per SKILL.md (`uv tool install git+https://github.com/lecholette/codegra
 - [sync](#sync)
 - [map](#map)
 - [slice](#slice)
+- [impact](#impact)
 - [flow](#flow)
 - [delta](#delta)
 - [Budgets](#budgets)
@@ -33,15 +34,15 @@ codegraph-slicer sync ROOT --db DATABASE [--revision REVISION]
 ## map
 
 ```
-codegraph-slicer map --db DB [--seed MODULE_OR_PATH ...] [--max-tokens N] [--snapshot]
+codegraph-slicer map --db DB [--seed MODULE_OR_PATH ...] [--max-tokens N] [--outline] [--snapshot]
 ```
 
-Ranks files by symbol PageRank (personalized to `--seed` when given) and emits whole file skeletons (bodies as `...`, docstrings kept) while they fit. Default budget 2000. Refuses when source changed since sync, unless `--snapshot` (query the cached bytes on purpose).
+Ranks files by symbol PageRank (personalized to `--seed` when given) and emits whole file skeletons (bodies as `...`, docstrings kept) while they fit. Default budget 2000. Add `--outline` for entity signatures and typed resolved neighbor edges (`CALLS`, `IMPORTS`, `USES_TYPE`, `INHERITS`, `DEFINES`). Refuses when source changed since sync, unless `--snapshot` (query the cached bytes on purpose).
 
 ## slice
 
 ```
-codegraph-slicer slice --db DB ANCHOR [ANCHOR ...] [--max-tokens N] [--include-callee-bodies] [--snapshot]
+codegraph-slicer slice --db DB ANCHOR [ANCHOR ...] [--max-tokens N] [--outline] [--include-callee-bodies] [--snapshot]
 ```
 
 Anchor forms:
@@ -54,7 +55,15 @@ Anchor forms:
 | `symbol_id` | Exact id from earlier output |
 | `package.module:` | Whole module source |
 
-Output sections: required (full anchor implementations and class/type definitions up to two `USES_TYPE`/`INHERITS` hops), upstream callers (signatures), then downstream callees (signatures, or bodies with the flag), added in rank order while the budget allows. Default budget 8000. Required content that does not fit makes the command fail rather than truncate.
+Output sections: required (full anchor implementations, rendering targets first and summarizing oversized related classes), upstream callers (signatures), then downstream callees (signatures, or bodies with the flag), added in rank order while the budget allows. Default budget 8000. Pass `--outline` to omit implementation bodies and keep only structure.
+
+## impact
+
+```
+codegraph-slicer impact ANCHOR --db DB [--max-depth N] [--max-nodes N] [--format json|markdown]
+```
+
+Reports bounded transitive callers by traversing resolved `CALLS` edges backwards from the anchor. Default `--max-depth 3` and `--max-nodes 200`. Witnesses show call reachability. Use for blast-radius analysis before changing or retiring shared functions.
 
 ## flow
 
@@ -68,8 +77,8 @@ Intraprocedural statement graph for one function or method (profile `python-loca
 - No `--variable`/`--line`: the full function graph. With both: nodes matching both.
 - `backward` (default) = what feeds the value; `forward` = what it affects. Control dependencies are included unless `--data-only`.
 - An unknown variable or line is refused, not approximated.
-- Supported: assignments, augmented/annotated assignments, expressions, if/elif/else, for/while with else, break/continue, return/raise, assert/pass, eager walrus.
-- Refused with a location: try/except/finally, with, async/await, yield, comprehensions, lambdas, nested definitions, imports, global/nonlocal, `del`, walrus under short-circuit.
+- Supported: assignments, augmented/annotated assignments, expressions, if/elif/else, for/while with else, break/continue, return/raise, assert/pass, eager walrus, try/except/finally (with exception data bindings), with/async with, and comprehensions.
+- Refused with a location: async/await outside async with, yield, lambdas, nested definitions, imports, global/nonlocal, `del`, walrus under short-circuit.
 - Calls are opaque: arguments and receivers are visible, return values and side effects are not inferred. Aliases are unresolved.
 - Report includes symbol id, path, blob id, and SHA-256 of the analyzed source. Default budget 8000; no trimming, it errors if the selection does not fit.
 
