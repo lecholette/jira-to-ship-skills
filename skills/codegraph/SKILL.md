@@ -58,6 +58,7 @@ Copy this checklist:
 3. **Slice (batch anchors & structure).**
    - Pass **all** target anchors in a **single** `slice` command (`slice --db "$DB" pkg.mod:a pkg.mod:b`) rather than looping `slice` in bash; `slice` deduplicates shared types and callers across anchors.
    - Slices render the primary target first and automatically summarize oversized related classes. If a slice refuses for size, rerun once with `--max-tokens` at the N printed in the error.
+   - **Format selection:** Prefer `--format xml` for LLM agents (clean `<code_slice>` blocks with no escaping or fence collisions); use `--format markdown` for human reading or `--format json` for tooling.
    - Use `slice --outline` when you only need structural signatures, callers, callees, and types without implementation bodies.
    - Once you start editing files, pass `--snapshot` when querying unchanged symbols from the baseline `$DB` so `slice` and `map` do not fail with `StaleSnapshotError` (re-sync for symbols you edited).
    - Add `--include-callee-bodies` only when you need callee logic.
