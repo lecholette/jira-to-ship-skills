@@ -1,6 +1,6 @@
 # Codegraph command cookbook
 
-Install per SKILL.md (`uv tool install git+https://github.com/lecholette/codegraph-slicer`, Python 3.12+). Every command accepts `--format json|markdown` (default json). Exit 0 on success, 2 on any error (message on stderr).
+Install per SKILL.md (`uv tool install git+https://github.com/lecholette/codegraph-slicer`, Python 3.12+). Every command accepts `--format json|markdown|xml` (default json; xml recommended for LLM agents). Exit 0 on success, 2 on any error (message on stderr).
 
 ## Contents
 
